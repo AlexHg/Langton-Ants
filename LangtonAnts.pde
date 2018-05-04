@@ -1,4 +1,4 @@
-int cellSize= 2; // Tamaño de las celdas (PX)
+int cellSize= 4; // Tamaño de las celdas (PX)
 float interval = 1; // TIMER (1)
 int lastRecordedTime = 0; // TIMER (2)
 int pause = 0;
@@ -9,6 +9,7 @@ color rosa = color(254, 0, 129);
 color amarillo = color(243, 197, 13);
 color negro = color(0);
 color piel = color(237, 160, 122);
+color blanco = color(255,255,255);
 
 color colorAnt = rosa; // Color hormiga
 color colorPaw = azul; // Color vivos
@@ -23,15 +24,15 @@ int[][] cellsBuffer; // Buffer del juego (Mientras se cambia la matriz principal
 int dimX; //= width/cellSize;
 int dimY; //= height/cellSize;
 
-float numberOfAnts = 100; // Probabilidad de iniciar vivo 
+float numberOfAnts = 10; // Probabilidad de iniciar vivo 
 ArrayList<Ant> AntList = new ArrayList<Ant>();
 int multicolor = 0;
 int numOfColors = 4;
 
 
 void setup(){
-  dimX = 500;
-  dimY = 500;
+  dimX = 250;
+  dimY = 250;
   
   size (1000, 1000);
   surface.setResizable(true);
@@ -44,7 +45,7 @@ void setup(){
   
   //Agrega las hormigas
   for(int a=0; a < numberOfAnts; a++){
-    Ant newAnt = new Ant(colorAnt, (int)random(dimX), (int)random(dimY), (int)random(4)+1);
+    Ant newAnt = new Ant(colorAnt, blanco, (int)random(dimX), (int)random(dimY), (int)random(4)+1);
     AntList.add(newAnt);
   }
   
@@ -73,6 +74,18 @@ void draw() {
       }
       for (Ant ant : AntList) {
         if(ant.x == x && ant.y == y){
+          fill(ant.tcolor);
+        }
+        if(ant.x == x+1 && ant.y == y && ant.direction == 1){
+          fill(ant.acolor);
+        }
+        if(ant.x == x-1 && ant.y == y && ant.direction == 3){
+          fill(ant.acolor);
+        }
+        if(ant.x == x && ant.y == y+1 && ant.direction == 2){
+          fill(ant.acolor);
+        }
+        if(ant.x == x && ant.y == y-1 && ant.direction == 4){
           fill(ant.acolor);
         }
       }
@@ -98,12 +111,14 @@ void iteration() { // iteracion
 
 class Ant{
   color acolor;
+  color tcolor;
   int x;
   int y;
   int direction; //1: left, 2: top; 3: right; 4: bottom;
   
-  public Ant(color colora, int xpos,int ypos,int dir){
+  public Ant(color colora, color colort, int xpos,int ypos,int dir){
     acolor = colora;
+    tcolor = colort;
     x = xpos;
     y = ypos;
     direction = dir;
