@@ -30,6 +30,14 @@ int multicolor = 0;
 int numOfColors = 4;
 
 
+int cellLive = 0;
+int cellLiveAt1000 = 0;
+int cellLiveSum = 0;
+int cellLiveProm = 0;
+
+
+int iterationCount = 0;
+
 void setup(){
   dimX = 250;
   dimY = 250;
@@ -102,10 +110,23 @@ void draw() {
 }
 
 void iteration() { // iteracion
+  if(iterationCount == 1000){
+    cellLiveAt1000 = cellLive;
+  }
   
+  println("____________________________");
+  println("Generación: "+iterationCount);
+  println("Hormigas existentes: "+numberOfAnts);
+  println("Celulas vivas: "+cellLive+"\t Promedio celulas vivas: "+cellLiveProm);
+  if(iterationCount >= 1000){
+    println("Celulas vivas en la 1000 generación: "+cellLiveAt1000);
+  }
   for (Ant ant : AntList) {
     ant.step();
   }
+  iterationCount++;
+  cellLiveSum += cellLive;
+  cellLiveProm = cellLiveSum / iterationCount;
          
 }
 
@@ -147,10 +168,13 @@ class Ant{
   public void step(){
     if(cells[this.x][this.y] == 0){
       cells[this.x][this.y] = 1;
+      cellLive++;
     }else if(cells[this.x][this.y] < 4 && multicolor == 1){
       cells[this.x][this.y]++;
+      cellLive++;
     }else{
       cells[this.x][this.y] = 0;
+      cellLive--;
     }
 
     if(this.direction == 1){ //LEFT
