@@ -1,3 +1,9 @@
+int numberOfAnts = 10; // Probabilidad de iniciar vivo 
+int antConsentrationSquare =50; //50x50
+int multicolor = 0;
+int antBorn = 1;
+int numOfColors = 4;
+
 int cellSize= 4; // Tamaño de las celdas (PX)
 float interval = 1; // TIMER (1)
 int lastRecordedTime = 0; // TIMER (2)
@@ -7,9 +13,11 @@ color azul = color(51, 121, 180);
 color verde = color(0, 200, 0);
 color rosa = color(254, 0, 129);
 color amarillo = color(243, 197, 13);
+color morado = color(170, 0, 255);
 color negro = color(0);
 color piel = color(237, 160, 122);
 color blanco = color(255,255,255);
+color gris = color(200,200,200);
 
 color colorAnt = rosa; // Color hormiga
 color colorPaw = azul; // Color vivos
@@ -24,11 +32,7 @@ int[][] cellsBuffer; // Buffer del juego (Mientras se cambia la matriz principal
 int dimX; //= width/cellSize;
 int dimY; //= height/cellSize;
 
-float numberOfAnts = 10; // Probabilidad de iniciar vivo 
 ArrayList<Ant> AntList = new ArrayList<Ant>();
-int multicolor = 0;
-int numOfColors = 4;
-
 
 int cellLive = 0;
 int cellLiveAt1000 = 0;
@@ -51,9 +55,19 @@ void setup(){
   noStroke();
   noSmooth();
   
+  int initX = (int)random(dimX) - antConsentrationSquare;
+  int initY = (int)random(dimY) - antConsentrationSquare;
+  if(initX < 0) initX = 0;
+  if(initY < 0) initY = 0;
   //Agrega las hormigas
   for(int a=0; a < numberOfAnts; a++){
-    Ant newAnt = new Ant(colorAnt, blanco, (int)random(dimX), (int)random(dimY), (int)random(4)+1);
+    color NewAntColor = colorAnt;
+    int isqueen = 0;
+    if(a == 0 && antBorn == 1){ 
+      NewAntColor = verde; 
+      isqueen = 1;
+    }
+    Ant newAnt = new Ant(NewAntColor, blanco, initX + (int)random(antConsentrationSquare), initY + (int)random(antConsentrationSquare), (int)random(4)+1, isqueen);
     AntList.add(newAnt);
   }
   
@@ -116,13 +130,34 @@ void iteration() { // iteracion
   
   println("____________________________");
   println("Generación: "+iterationCount);
-  println("Hormigas existentes: "+numberOfAnts);
-  println("Celulas vivas: "+cellLive+"\t Promedio celulas vivas: "+cellLiveProm);
+  println("Hormigas existentes: "+AntList.size());
+  println("Celulas vivas: "+cellLive+"\t Tendencia: "+cellLiveProm);
   if(iterationCount >= 1000){
     println("Celulas vivas en la 1000 generación: "+cellLiveAt1000);
   }
+  
+  int newAntis = 0;
+  int newAntX = 0;
+  int newAntY = 0;
   for (Ant ant : AntList) {
     ant.step();
+    if(ant.isqueen==1){
+      for (int i = 1; i < AntList.size(); i++) {
+        Ant ant2 = AntList.get(i);
+        if(ant2.isqueen==0){
+          if(ant.x == ant2.x && ant.y == ant2.y){
+            newAntX = ant.x;
+            newAntY = ant.y;
+            newAntis = 1;
+          }
+        }
+      }
+    }
+  }
+  if(newAntis == 1){
+    newAntis = 0;
+    Ant newAnt = new Ant(amarillo, blanco, newAntX, newAntY, (int)random(4)+1, 2);
+    AntList.add(newAnt);
   }
   iterationCount++;
   cellLiveSum += cellLive;
@@ -131,15 +166,17 @@ void iteration() { // iteracion
 }
 
 class Ant{
+  int isqueen;
   color acolor;
   color tcolor;
   int x;
   int y;
   int direction; //1: left, 2: top; 3: right; 4: bottom;
   
-  public Ant(color colora, color colort, int xpos,int ypos,int dir){
+  public Ant(color colora, color colort, int xpos,int ypos,int dir,int iqueen){
     acolor = colora;
     tcolor = colort;
+    isqueen = iqueen;
     x = xpos;
     y = ypos;
     direction = dir;
