@@ -1,5 +1,5 @@
-int numberOfAnts = 10; // Probabilidad de iniciar vivo 
-int antConsentrationSquare =50; //50x50
+int numberOfAnts = 30; // Probabilidad de iniciar vivo 
+int antConsentrationSquare =20; //50x50
 int multicolor = 0;
 int antBorn = 1;
 int numOfColors = 4;
@@ -38,10 +38,18 @@ int cellLive = 0;
 int cellLiveAt1000 = 0;
 int cellLiveSum = 0;
 int cellLiveProm = 0;
+int cellDead = 0;
 
 
 int iterationCount = 0;
 
+int itCount1000 = 0;
+String Slive = "";
+String Sdead = "";
+String Sants = "";
+
+PrintWriter output;
+int outFiles = 0;
 void setup(){
   dimX = 250;
   dimY = 250;
@@ -78,7 +86,7 @@ void setup(){
 }
 
 void draw() {
-
+cellDead = 0;
   //Dibuja la grilla
   for (int x=0; x<dimX; x++) {
     for (int y=0; y<dimY; y++) {
@@ -93,6 +101,7 @@ void draw() {
         fill(piel); // Vivo
       }else {
         fill(colorDead); // Muerto
+        cellDead++;
       }
       for (Ant ant : AntList) {
         if(ant.x == x && ant.y == y){
@@ -127,11 +136,41 @@ void iteration() { // iteracion
   if(iterationCount == 1000){
     cellLiveAt1000 = cellLive;
   }
+  if(itCount1000 == 1000){
+    itCount1000 = 0;
+    
+    output = createWriter("data/Ants-"+outFiles+"-live.txt");
+    output.println(Slive);
+    output.flush(); // Writes the remaining data to the file
+    output.close(); // Finishes the file
+    
+    output = createWriter("data/Ants-"+outFiles+"-dead.txt");
+    output.println(Sdead);
+    output.flush(); // Writes the remaining data to the file
+    output.close(); // Finishes the file
+    
+    output = createWriter("data/Ants-"+outFiles+"-ants.txt");
+    output.println(Sants);
+    output.flush(); // Writes the remaining data to the file
+    output.close(); // Finishes the file
+    
+    outFiles++;
+    
+    //Restart
+    Slive = "";
+    Sdead = "";
+    Sants = "";
+  }
+  
+  Sants += AntList.size()+",";
+  Slive += cellLive+",";
+  Sdead += cellDead+",";
   
   println("____________________________");
   println("Generación: "+iterationCount);
   println("Hormigas existentes: "+AntList.size());
   println("Celulas vivas: "+cellLive+"\t Tendencia: "+cellLiveProm);
+  println("Celulas muertas: "+cellDead);
   if(iterationCount >= 1000){
     println("Celulas vivas en la 1000 generación: "+cellLiveAt1000);
   }
@@ -160,6 +199,7 @@ void iteration() { // iteracion
     AntList.add(newAnt);
   }
   iterationCount++;
+  itCount1000++;
   cellLiveSum += cellLive;
   cellLiveProm = cellLiveSum / iterationCount;
          
